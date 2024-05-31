@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 public class SpeakerController {
@@ -16,7 +20,14 @@ public class SpeakerController {
         this.speakerService = speakerService;
     }
 
-    @GetMapping
+    @PutMapping("/speaker")
+    public Speaker createSpeaker(@RequestBody Speaker speaker){
+        System.out.println("Name: " + speaker.getName());
+
+        return speakerService.create(speaker);
+    }
+
+    @GetMapping("/speaker")
     public List<Speaker> getSpeakers() {
         return speakerService.findAll();
     }

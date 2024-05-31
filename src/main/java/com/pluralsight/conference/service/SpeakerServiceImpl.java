@@ -19,4 +19,9 @@ public class SpeakerServiceImpl implements SpeakerService {
     public List<Speaker> findAll() {
         return speakerRepository.findAll();
     }
+
+    public Speaker create(Speaker speaker){
+        return speakerRepository.create(speaker);
+    }
+
 }
