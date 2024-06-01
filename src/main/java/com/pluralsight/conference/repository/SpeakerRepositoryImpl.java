@@ -1,11 +1,22 @@
 package com.pluralsight.conference.repository;
 
 import com.pluralsight.conference.model.Speaker;
+import com.pluralsight.conference.repository.util.SpeakerRowMapper;
 
+import org.h2.command.Prepared;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,35 +32,63 @@ public class SpeakerRepositoryImpl implements SpeakerRepository {
     }
     
     public List<Speaker> findAll() {
-        Speaker speaker = new Speaker();
-        speaker.setName("Kevin Hammermeister");
-        speaker.setSkill("Java");
-        List<Speaker> speakers = new ArrayList<>();
-        speakers.add(speaker);
+        
+
+
+        List<Speaker> speakers = jdbcTemplate.query("select * from speaker", new SpeakerRowMapper());
+
         return speakers;
     }
 
     @Override
     public Speaker create(Speaker speaker) {
-        jdbcTemplate.update("INSERT INTO speaker (name) values (?)", speaker.getName());
+        // jdbcTemplate.update("INSERT INTO speaker (name) values (?)", speaker.getName());
 
-        // SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
+        // KeyHolder keyHolder = new GeneratedKeyHolder();
+        // jdbcTemplate.update(new PreparedStatementCreator() {
+        //     @Override
+        //     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+        //         PreparedStatement ps = con.prepareStatement("INSERT INTO speaker (name) values (?)", new String[] {"id"});
+        //         ps.setString(1, speaker.getName());
+        //         return ps;
+        //     }
+        // }, keyHolder);
 
-        // insert.setTableName("speaker");
+        // Number id = keyHolder.getKey();
 
-        // List<String> columns = new ArrayList<>();
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
 
-        // columns.add("name");
+        insert.setTableName("speaker");
 
-        // Map<String, Object> data = new HashMap<>();
-        // data.put("name", speaker.getName());
+        List<String> columns = new ArrayList<>();
+        columns.add("name");
 
-        // insert.setGeneratedKeyName("id");
+        insert.setColumnNames(columns);
 
-        // Number key = insert.executeAndReturnKey(data);
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", speaker.getName());
 
-        // System.out.println(key);
+        insert.setGeneratedKeyName("id");
 
-        return null;
+        Number id = insert.executeAndReturnKey(data);
+
+        return getSpeaker(id.intValue());
+    }
+    
+    @Override
+    public Speaker getSpeaker(int id) {
+        return jdbcTemplate.queryForObject("select * from speaker where id = ?", new SpeakerRowMapper(), id);
+    }
+
+    @Override
+    public Speaker update(Speaker speaker){
+        jdbcTemplate.update("update speaker set name = ? where id = ?", speaker.getName(), speaker.getId());
+
+        return speaker;
+    }
+
+    @Override
+    public void update(List<Object[]> pairs){
+        jdbcTemplate.batchUpdate("update speaker set skill = ? where id = ?", pairs);
     }
 }

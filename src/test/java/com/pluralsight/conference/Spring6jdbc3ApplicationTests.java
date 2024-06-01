@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -20,9 +21,11 @@ class Spring6jdbc3ApplicationTests {
         RestTemplate restTemplate = new RestTemplate();
         
         Speaker speaker = new Speaker();
-        speaker.setName("John Henry");
+        speaker.setName("Bob Smith");
 
-        restTemplate.put("http://localhost:8080/speaker", speaker);
+        speaker = restTemplate.postForObject("http://localhost:8080/speaker", speaker, Speaker.class);
+
+        System.out.println(speaker.getName());
     }
 
 
@@ -41,7 +44,30 @@ class Spring6jdbc3ApplicationTests {
         List<Speaker> speakers = speakersResponse.getBody();
 
         for (Speaker speaker : speakers) {
-            System.out.println("Speaker name: " + speaker.getName());
+            System.out.println("Speaker name: " + speaker.getName() + " " + speaker.getSkill());
         }
     }
+
+    @Test
+    void testUpdateSpeaker(){
+        RestTemplate restTemplate = new RestTemplate();
+
+        Speaker speaker = restTemplate.getForObject("http://localhost:8080/speaker/{id}", Speaker.class, 198);
+
+        speaker.setName(speaker.getName() + " Sr.");
+
+        restTemplate.put("http://localhost:8080/speaker", speaker);
+
+        System.out.println(speaker.getName());
+    }
+
+    @Test
+    public void testBatchUpdate(){
+        RestTemplate restTemplate = new RestTemplate();
+
+        restTemplate.getForObject("http://localhost:8080/speaker/batch", Object.class);
+    }
+
+    
+
 }
