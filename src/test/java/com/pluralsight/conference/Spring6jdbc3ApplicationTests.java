@@ -76,4 +76,12 @@ class Spring6jdbc3ApplicationTests {
 
     }
 
+    @Test
+    void testException() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        restTemplate.getForObject("http://localhost:8080/speaker/test", Speaker.class);
+
+    }
+
 }

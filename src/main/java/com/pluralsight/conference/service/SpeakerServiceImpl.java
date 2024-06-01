@@ -2,7 +2,11 @@ package com.pluralsight.conference.service;
 
 import com.pluralsight.conference.model.Speaker;
 import com.pluralsight.conference.repository.SpeakerRepository;
+
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -36,6 +40,7 @@ public class SpeakerServiceImpl implements SpeakerService {
     }
 
     @Override
+    @Transactional
     public void batch(){
         List<Speaker> speakers = speakerRepository.findAll();
 
@@ -48,6 +53,8 @@ public class SpeakerServiceImpl implements SpeakerService {
         }
 
         speakerRepository.update(pairs);
+
+        throw new DataAccessException("Error in batch") {};
     }
 
     @Override
