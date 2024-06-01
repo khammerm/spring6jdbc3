@@ -50,4 +50,9 @@ public class SpeakerServiceImpl implements SpeakerService {
         speakerRepository.update(pairs);
     }
 
+    @Override
+    public void delete(int id){
+        speakerRepository.delete(id);
+    }
+
 }
